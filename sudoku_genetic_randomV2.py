@@ -2,45 +2,87 @@ import random
 import copy
 import time as t
 import string
-
+from tkinter import *
 start = t.time()
 sudoku_problem = []
 sudoku_solve = []
 high_value = []
 high_fitness = 0
 value = [[9,0,0,8,1,2,0,0,6],[0,1,2,0,0,0,8,7,0],[6,0,0,7,9,5,0,1,0],[0,5,7,3,6,0,0,0,0],[0,0,1,0,2,0,3,0,0],[0,0,0,0,4,7,9,2,0],[0,4,0,2,5,1,0,0,3],[0,8,6,0,0,0,2,5,0],[1,0,0,6,8,3,0,0,4]]
+marking = [[[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False]]]
+order = [[[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]]
 fixed = [[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False]]
 values = []
+element = [1,2,3,4,5,6,7,8,9]
 random.seed(a=None)
+posRowElements = [0,0,0,0,0,0,0,0,0]
+posColElements = [0,0,0,0,0,0,0,0,0]
+posSquareElements = [[0,0,0],[0,0,0],[0,0,0]]
 #Genetic algorithm for sudoku.
 #Get mutation rate. Score the population of the sudoku problem. Pick high fitnesses.
 def genetic(popul,selection,mutation,max_gen):
     global values
     global value
-    global high_fitness
     fitness_values = []
-    
     gen = 0
+
+    top = Tk()
+    top.title("Sudoku_Backtracking")                # 제목
+    top.resizable(True, True)        # 크기 고정
+    top.configure(background='white') #배경색
+    top.geometry("180x600")
+    problem = Label(top, text = getMat(value))
+    problemlb = Label(top, text = "초기 입력 문제")
+    solving = Label(top, text = getMat(value))
+    solvinglb = Label(top, text = "풀이")
+    high = Label(top, text = getMat(value))
+    highlb = Label(top, text = "최고 적합도")
+    highsclb = Label(top, text = high_fitness)
+    genlb = Label(top, text = ("세대수",(gen+1)))
+    problemlb.pack()
+    problem.pack()
+    
+
     #First Generation
     for i in range(popul):
         fitness_values.append(copy.deepcopy(0))
         values.append(copy.deepcopy(put_element(copy.deepcopy(value))))
     for i in range(popul):
         fitness_values[i] = copy.deepcopy(get_fitness(copy.deepcopy(values[i])))
+    for i in values:
+        print_value(i)
     #After first generation. Loop
     while(gen != max_gen):
-        #answerFound
-        if(high_fitness==243):
-            global start
-            print(t.time()-start)
-            print(gen+1," Generation")
-            print("Complete!")
-            return
-        #getFitness
         for i in range(popul):
             fitness_values[i] = copy.deepcopy(get_fitness(copy.deepcopy(values[i])))
+        #print
         #select
         select(copy.deepcopy(selection),popul,copy.deepcopy(fitness_values))
+        
+        #TKinter
+        solvinglb.destroy()
+        solving.destroy()
+        highlb.destroy()
+        highsclb.destroy()
+        high.destroy()
+        genlb.destroy()
+
+        genlb = Label(top, text = ("세대수",(gen+1)))
+        solvinglb = Label(top, text = "문제 풀이")
+        solving = Label(top, text = getMat(values[0]))
+        highlb = Label(top, text = "최대 적합도")
+        highsclb = Label(top, text = high_fitness)
+        high = Label(top, text = getMat(high_value))
+
+        highlb.pack()
+        highsclb.pack()
+        high.pack()
+        genlb.pack()
+        solvinglb.pack()
+        solving.pack()
+        
+        top.update()
+
         #cross
         selected = int(popul*selection)
         cross(popul,selection,copy.deepcopy(values[random.randrange(0,selected,1)]),copy.deepcopy(values[random.randrange(0,selected,1)]))
@@ -48,29 +90,34 @@ def genetic(popul,selection,mutation,max_gen):
         for i in range(popul):
             values[i] = copy.deepcopy(mutate(values[i],mutation))
         
-        gen+= 1
-    if(high_fitness!=243):
-        print("Cannot find the answer.")
-    
-    
+        
+
+        if(gen % 100 == 99):
+            print(gen+1,"Gen")
+            print_highest()
+        gen += 1
+    top.mainloop()
 
     
 def cross(popul,selection,valueo,valuet):
     global values
     insv = copy.deepcopy(valueo)
     inst = copy.deepcopy(values)
-    while(len(inst) != popul):
-        for i in range(9):
-            for j in range(9):
-                ins = copy.deepcopy(insv[i][j])
-                insv[i][j] = copy.deepcopy(valuet[i][j])
-                if(not checkElementFlag(insv,i,j)):
-                    insv[i][j] = copy.deepcopy(ins)
-        inst.append(copy.deepcopy(insv))
+    cnt = 0
+
+    same = {}
+    while(cnt != popul):
+        n = 0
+        while(n != 40):
+            row = copy.deepcopy(random.randint(0,80))
+            column = copy.deepcopy(random.randint(0,8))
+            if(same.get(row%9) != column and not(fixed[row%9][column])):
+                insv[row%9][column] = copy.deepcopy(valuet[row%9][column])
+                same[row] = column
+                n+=1
+        inst[cnt] = copy.deepcopy(insv)
+        cnt += 1
     values = copy.deepcopy(inst)
-
-
-
 
 '''
 def mutate(value,mutation):
@@ -91,32 +138,43 @@ def mutate(value,mutation):
                 mut_val -= 1
     return value
 '''
-
+'''
 def mutate(value,mutation):
     mut_val = int(mutation*81)
-    blank = 0
     same = {}
-    while(mut_val != 0):
-        row = copy.deepcopy(random.randint(0,80))
-        column = copy.deepcopy(random.randint(0,8))
-        if(same.get(row) != column and not(fixed[row%9][column])):
-            if(len(getposElement(value,row%9,column)) > 1 ):
-                value[row%9][column] = copy.deepcopy(getposElement(value,row%9,column)[copy.deepcopy(random.randrange(0,len(getposElement(value,row%9,column)),1))])
-                same[row] = column
-                mut_val -= 1
-            else:
-                value[row%9][column] = copy.deepcopy(0)
-                same[row] = column
-                mut_val -= 1
-                blank += 1
     for i in range(9):
         for j in range(9):
             if(value[i][j]==0):
-                if(len(getposElement(value,i,j)) > 0 ):
-                    value[i][j] = copy.deepcopy(getposElement(value,i,j)[copy.deepcopy(random.randrange(0,len(getposElement(value,i,j)),1))])
-                    blank -= 1
-            if(blank == 0):
-                return value
+                value[i][j] = copy.deepcopy(random.randint(1,9))
+                if(not checkElementFlag(value,i,j)):
+                    value[i][j] = copy.deepcopy(0)
+                else:
+                    mut_val -= 1  
+                if(mut_val == 0):
+                    return value
+    while(mut_val != 0):
+        row = copy.deepcopy(random.randint(0,8))
+        column = copy.deepcopy(random.randint(0,8))
+        if(same.get(row) != column and not(fixed[row][column])):
+            ins = copy.deepcopy(value[row][column])
+            value[row][column] = copy.deepcopy(random.randint(1,9))
+            if(not checkElementFlag(value,row,column)):
+                value[row][column] = copy.deepcopy(0)
+                same[row] = column
+            else:
+                same[row] = column
+                mut_val -= 1
+    return value
+'''
+def mutate(value,mutation):
+    mut_val = int(mutation*81)
+    same = {}
+    while(mut_val != 0):
+        row = copy.deepcopy(random.randint(0,8))
+        column = copy.deepcopy(random.randint(0,8))
+        if(same.get(row) != column and not(fixed[row][column])):
+            value[row][column] = copy.deepcopy(random.randint(1,9))
+            mut_val -= 1
     return value
 
 #Selection
@@ -124,8 +182,14 @@ def select(selection,popul,fitness_values):
     global values
     global high_fitness
     global high_value
+    high_loc = []
+    high_loc.clear()
     selected=int(popul*selection)
+    for i in range(popul):
+        high_loc.append(i)
+
     insf = 0
+    insl = 0
     insv = values[0]
     for i in range(popul):
         for j in  range(popul):
@@ -133,14 +197,19 @@ def select(selection,popul,fitness_values):
                 insf = copy.deepcopy(fitness_values[j])
                 fitness_values[j] = copy.deepcopy(fitness_values[i])
                 fitness_values[j] = copy.deepcopy(insf)
+                insl = copy.deepcopy(high_loc[j])
+                high_loc[j] = copy.deepcopy(high_loc[i])
+                high_loc[j] = copy.deepcopy(insl)
                 insv = copy.deepcopy(values[j])
                 values[j] = copy.deepcopy(values[i])
                 values[j] = copy.deepcopy(insv)
-    for i in range(selected):
-        values.pop()
     if(high_fitness < fitness_values[0]):
         high_value = copy.deepcopy(values[0])
         high_fitness = copy.deepcopy(fitness_values[0])
+        if(high_fitness == 243):
+            global start
+            print(t.time()-start)
+        print_highest()
     
     
     
@@ -242,8 +311,15 @@ def put_element(value):
                     pass
     return value
 '''
-
-
+def put_element(value):
+    global fixed
+    for i in range(9):
+        for j in range(9):
+            if(not fixed[i][j]):
+                value[i][j] = random.randint(1,9)
+    return value
+        
+'''
 def put_element(value):
     cnt = 81
     same = {}
@@ -260,8 +336,10 @@ def put_element(value):
             else:
                 same[row] = column
                 cnt -= 1
+        else:
+            same[row] = column
     return value
-
+'''
 
 '''
 def put_element(value):
@@ -345,6 +423,11 @@ def print_value(value):
         print()
     print()
                 
+def getMat(value):
+    v = ""
+    for i in value:
+        v = v + str(i) + "\n"
+    return v
 
 def print_highest() :
     global high_value
@@ -359,10 +442,10 @@ def print_highest() :
 
 if __name__ == "__main__":
 
-    popul = 10
+    popul = 50
     selection = 0.5
     mutation = 0.05
-    max_gen = 300000
+    max_gen = 10000
     
     ready()
     genetic(popul,selection,mutation,max_gen)
