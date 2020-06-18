@@ -39,6 +39,7 @@ def genetic(popul,selection,mutation,max_gen):
     highlb = Label(top, text = "최고 적합도")
     highsclb = Label(top, text = high_fitness)
     genlb = Label(top, text = ("세대수",(gen+1)))
+    fitlb = Label(top, text = ("세대수",(gen+1)))
     problemlb.pack()
     problem.pack()
     
@@ -66,7 +67,9 @@ def genetic(popul,selection,mutation,max_gen):
         highsclb.destroy()
         high.destroy()
         genlb.destroy()
+        fitlb.destroy()
 
+        fitlb = Label(top, text = ("적합도",fitness_values[0]))
         genlb = Label(top, text = ("세대수",(gen+1)))
         solvinglb = Label(top, text = "문제 풀이")
         solving = Label(top, text = getMat(values[0]))
@@ -78,7 +81,8 @@ def genetic(popul,selection,mutation,max_gen):
         highsclb.pack()
         high.pack()
         genlb.pack()
-        solvinglb.pack()
+        highsclb.pack()
+        fitlb.pack()
         solving.pack()
         
         top.update()
