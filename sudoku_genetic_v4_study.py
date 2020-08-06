@@ -4,19 +4,12 @@ import time as t
 import string
 from tkinter import *
 start = t.time()
-sudoku_problem = []
-sudoku_solve = []
 high_value = []
 high_fitness = 0
 value = [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
-marking = [[[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False]]]
 fixed = [[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False],[False,False,False,False,False,False,False,False,False]]
 values = []
-element = [1,2,3,4,5,6,7,8,9]
 random.seed(a=None)
-posRowElements = [0,0,0,0,0,0,0,0,0]
-posColElements = [0,0,0,0,0,0,0,0,0]
-posSquareElements = [[0,0,0],[0,0,0],[0,0,0]]
 #Genetic algorithm for sudoku.
 #Get mutation rate. Score the population of the sudoku problem. Pick high fitnesses.
 def genetic(popul,selection,mutation,max_gen):
@@ -104,7 +97,7 @@ def genetic(popul,selection,mutation,max_gen):
         
         if(gen == 0):
             print("Gen\tHighest\tLowest\tAvg\tMax")
-        if(gen % 50 == 49 or gen == 0):
+        if(gen % 10 == 9 or gen == 0):
             insfit=0
             for i in fitness_values:
                 insfit += i
@@ -174,10 +167,10 @@ def select(selection,popul,fitness_values):
     if(high_fitness < fitness_values[0]):
         high_value = copy.deepcopy(values[0])
         high_fitness = copy.deepcopy(fitness_values[0])
-    if(fitness_values[0] == 243):
-        global start
-        print(t.time()-start,"\t")
-        print_value(values[0])
+        if(fitness_values[0] == 243):
+            global start
+            print(t.time()-start,"\t")
+            print_highest()
     
     
     
